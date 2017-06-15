@@ -24,27 +24,30 @@ class IdeaDependencyManager {
     }
 
     @NotNull
-    IdeaDependency resolveRemote(@NotNull Project project, @NotNull String version, @NotNull String type, boolean sources) {
+    IdeaDependency resolveRemote(@NotNull Project project, @NotNull String version, @NotNull String type, boolean sources,
+                                 @Nullable String platformGroupId, @Nullable String platformArtifactId) {
         LOG.debug("Adding IntelliJ IDEA repository")
         def releaseType = version.contains('SNAPSHOT') ? 'snapshots' : 'releases'
         project.repositories.maven { it.url = "${repoUrl}/$releaseType" }
 
         LOG.debug("Adding IntelliJ IDEA dependency")
-        def dependencyGroup = 'com.jetbrains.intellij.idea'
-        def dependencyName = 'ideaIC'
-        if (type == 'IU') {
-            dependencyName = 'ideaIU'
-        } else if (type == 'RS') {
-            dependencyGroup = 'com.jetbrains.intellij.rider'
-            dependencyName = 'riderRS'
+        if (platformGroupId == null || platformGroupId.isEmpty()) {
+            platformGroupId = 'com.jetbrains.intellij.idea'
+            platformArtifactId = 'ideaIC'
+            if (type == 'IU') {
+                platformArtifactId = 'ideaIU'
+            } else if (type == 'RS') {
+                platformGroupId = 'com.jetbrains.intellij.rider'
+                platformArtifactId = 'riderRS'
+            }
         }
-        def dependency = project.dependencies.create("$dependencyGroup:$dependencyName:$version")
+        def dependency = project.dependencies.create("$platformGroupId:$platformArtifactId:$version")
         def configuration = project.configurations.detachedConfiguration(dependency)
 
         def classesDirectory = getClassesDirectory(project, configuration, type)
         def buildNumber = Utils.ideaBuildNumber(classesDirectory)
         def sourcesDirectory = sources ? resolveSources(project, version) : null
-        return createDependency(dependencyName, type, version, buildNumber, classesDirectory, sourcesDirectory, project)
+        return createDependency(platformArtifactId, type, version, buildNumber, classesDirectory, sourcesDirectory, project)
     }
 
     @NotNull

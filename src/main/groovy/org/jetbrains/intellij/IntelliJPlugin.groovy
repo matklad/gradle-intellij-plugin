@@ -116,7 +116,8 @@ class IntelliJPlugin implements Plugin<Project> {
             ideaDependency = resolver.resolveLocal(project, extension.localPath)
         } else {
             LOG.info("Using IDE from remote repository")
-            ideaDependency = resolver.resolveRemote(project, extension.version, extension.type, extension.downloadSources)
+            ideaDependency = resolver.resolveRemote(project, extension.version, extension.type, extension.downloadSources,
+                extension.platformGroupId, extension.platformArtifactId)
         }
         extension.ideaDependency = ideaDependency
         LOG.info("IntelliJ IDEA ${ideaDependency.buildNumber} is used for building")

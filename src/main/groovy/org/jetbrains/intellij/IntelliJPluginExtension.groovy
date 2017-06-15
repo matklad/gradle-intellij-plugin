@@ -24,6 +24,9 @@ class IntelliJPluginExtension {
     @Deprecated
     Publish publish
 
+    String platformGroupId
+    String platformArtifactId
+
     IdeaDependency ideaDependency
     private final Set<PluginDependency> pluginDependencies = new HashSet<>()
     @Deprecated
